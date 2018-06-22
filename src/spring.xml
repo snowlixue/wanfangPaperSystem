@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc" xmlns:jee="http://www.springframework.org/schema/jee"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:util="http://www.springframework.org/schema/util" xmlns:task="http://www.springframework.org/schema/task"
+
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+		http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-4.0.xsd
+		http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-4.0.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.0.xsd
+		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.0.xsd"
+	default-lazy-init="true"><!-- 属性default-lazy-init是一个懒加载过程，设成true时，用到对象才实例化，不用时不实例化，false反之 -->
+	<!-- 如果要使用自动注入等注解，需要一条一条配置，用下面这条标签就不用配置了，它会自动识别注解。 向 spring容器注册标签 -->
+	<context:annotation-config/>
+	<!-- 注解扫描包，base-package里是要扫描的路径===========================================改 -->
+	<context:component-scan base-package="com"/>
+	<!-- 配置数据源，使用的是bonecp  bonecp的效率，速度要高于c3p0 -->
+	<!-- 设置要读取的jdbc配置文件 -->
+	<context:property-placeholder location="classpath:jdbc.properties" ignore-unresolvable="true"/>
+	<bean id="dataSource" class="com.jolbox.bonecp.BoneCPDataSource" destroy-method="close">
+		<property name="driverClass" value="${jdbc.driver}"></property>
+		<property name="jdbcUrl" value="${jdbc.url}"></property>
+		<property name="username" value="${jdbc.username}"></property>
+		<property name="password" value="${jdbc.password}"></property>
+	</bean>
+	
+	<!-- spring和mybatis整合，不用写mybatis主配置文件 -->
+	<!-- 创建sqlSessionFactory会话工厂，用于生产工厂对象，固定的 -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<!-- 连接数据库的，ref里写配置数据源里的id名 -->
+		<property name="dataSource" ref="dataSource"></property>
+		<!-- 管理mybatis工具的，value里写mybatis的配置文件名：classpath:文件名.xml -->
+		<property name="mapperLocations" value="classpath:mybatis/*mapper.xml"></property>
+	</bean>
+	
+	<!-- 配置DAO  让spring自动查找DAO并创建实例，这是扫描功能 -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<!-- value里是要扫描的路径========================================改 -->
+		<property name="basePackage" value="com.dao"></property>
+		<!-- value里是创建会话工厂里的id -->
+		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"></property>
+	</bean>												
+	<!-- 事务处理 -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+</beans>
+
+
+
+
+
+
+
+
