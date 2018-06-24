@@ -1,5 +1,6 @@
 # wanfangPaperSystem
 一款对万方论文条目进行智能推荐和生成关键词故事线的系统
+博客：https://blog.csdn.net/dreamtheworld1/article/details/80793228
 
 运行环境 tomcat8，java8，mysql 
 开发环境 ecplise，navicat
